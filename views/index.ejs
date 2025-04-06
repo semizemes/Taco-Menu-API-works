@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Taco Recipes</title>
+  <link rel="stylesheet" type="text/css" href="/styles/main.css">
+</head>
+
+<body>
+  <h1>Taco Town 🌮</h1>
+
+  <form id="form" action="/recipe" method="POST" class="buttons">
+    <button type="submit" value="chicken" name="choice">🍗</button>
+    <button type="submit" value="beef" name="choice">🥩</button>
+    <button type="submit" value="fish" name="choice">🐟</button>
+  </form>
+  <div  id="recipeContainer" class="hidden">
+    <!-- If no recipe yet, show: -->
+    <h2 id="taco-name">Pick your favourite taco ingredient 👆</h2>
+    <!-- Else, show the recipe name e.g. <h2>Recipe name</h2>-->
+
+
+
+  </div>  
+
+  <script>
+    const menu = document.getElementById("recipeContainer");
+    const ingredient = document.getElementById("ingredientsList");
+    const form = document.getElementById("form");
+    const tacoName = document.getElementById("taco-name");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const clickedBtn = e.submitter;
+      const choice = clickedBtn.value;
+
+      fetch("/recipe", {
+        method: "POST", 
+        headers: { "Content-type": "application/x-www-form-urlencoded"},
+        body: `choice=${choice}`
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          menu.innerHTML = `
+          <h2 id="taco-name">${data.name}</h2>
+    <!-- Else, show the recipe name e.g. <h2>Recipe name</h2>-->
+
+    <h3>Ingredients:</h3>
+    <ul id="ingredientsList">
+      <li>${data.ingredients.protein.name}, ${data.ingredients.protein.preparation}</li>
+      <li>${data.ingredients.salsa.name}</li>
+    </ul>
+          `;
+          const newIngredientList = document.getElementById("ingredientsList");
+
+          data.ingredients.toppings.forEach(topping => {
+            const li = document.createElement("li");
+            li.textContent = `${topping.quantity} of ${topping.name}`;
+            newIngredientList.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    });
+    
+  </script>
+
+
+</body>
+
+</html>
